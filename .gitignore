@@ -40,3 +40,4 @@ sslcert/**
 
 credentials/
 .env
+secrets.txt
