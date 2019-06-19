@@ -1,12 +1,12 @@
-async function decrypt(
-    projectId = 'your-project-id', // Your GCP projectId
-    keyRingId = 'my-key-ring', // Name of the crypto key's key ring
-    cryptoKeyId = 'my-key', // Name of the crypto key, e.g. "my-key"
-    ciphertextFileName = './credentials-enc',
-    plaintextFileName = './credentials'
+module.exports = async function decrypt(
+    projectId,
+    keyRingId,
+    cryptoKeyId,
+    ciphertextFileName,
+    plaintextFileName
 ) {
     const fs = require('fs');
-    const {promisify} = require('util');
+    const { promisify } = require('util');
 
     // Import the library and create a client
     const kms = require('@google-cloud/kms');
@@ -27,7 +27,7 @@ async function decrypt(
     const ciphertext = contentsBuffer.toString('base64');
 
     // Decrypts the file using the specified crypto key
-    const [result] = await client.decrypt({name, ciphertext});
+    const [result] = await client.decrypt({ name, ciphertext });
 
     // Writes the decrypted file to disk
     const writeFile = promisify(fs.writeFile);
@@ -35,4 +35,4 @@ async function decrypt(
     console.log(
         `Decrypted ${ciphertextFileName}, result saved to ${plaintextFileName}.`
     );
-}
+};

@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "server": "npm run start",
+    "server:schools": "MODE_ENV=prod NODE_ENV=schools npm run server",
+    "encrypt": "node public/javascripts/encrypt.js --projectId='123'"
   },
   "dependencies": {
     "@google-cloud/kms": "1.1.1",
@@ -17,6 +20,7 @@
     "moment": "2.24.0",
     "morgan": "1.9.1",
     "node-sass-middleware": "0.11.0",
-    "request-promise": "4.2.4"
+    "request-promise": "4.2.4",
+    "util": "0.12.0"
   }
 }

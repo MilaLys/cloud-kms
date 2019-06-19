@@ -1,10 +1,15 @@
-async function encrypt(
-    projectId = 'your-project-id', // Your GCP projectId
-    keyRingId = 'my-key-ring', // Name of the crypto key's key ring
-    cryptoKeyId = 'my-key', // Name of the crypto key, e.g. "my-key"
-    plaintextFileName = './credentials',
-    ciphertextFileName = './credentials-enc'
+(async function encrypt (
+    projectId,
+    keyRingId,
+    cryptoKeyId,
+    plaintextFileName,
+    ciphertextFileName
 ) {
+    console.log(projectId,
+        keyRingId,
+        cryptoKeyId,
+        plaintextFileName,
+        ciphertextFileName);
     const fs = require('fs');
     const { promisify } = require('util');
 
@@ -32,4 +37,4 @@ async function encrypt(
     await writeFile(ciphertextFileName, Buffer.from(result.ciphertext, 'base64'));
     console.log(`Encrypted ${plaintextFileName} using ${result.name}.`);
     console.log(`Result saved to ${ciphertextFileName}.`);
-}
+}());

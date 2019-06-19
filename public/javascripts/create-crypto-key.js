@@ -1,7 +1,7 @@
-async function createCryptoKey(
-    projectId = 'your-project-id', // Your GCP Project Id
-    keyRingId = 'my-key-ring', // Name of the crypto key's key ring
-    cryptoKeyId = 'my-key' // Name of the crypto key
+module.exports = async function createCryptoKey(
+    projectId, // Your GCP Project Id
+    keyRingId, // Name of the crypto key's key ring
+    cryptoKeyId // Name of the crypto key
 ) {
     // Import the library and create a client
     const kms = require('@google-cloud/kms');
@@ -22,4 +22,4 @@ async function createCryptoKey(
         },
     });
     console.log(`Key ${cryptoKey.name} created.`);
-}
+};

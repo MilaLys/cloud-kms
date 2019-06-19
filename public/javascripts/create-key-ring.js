@@ -1,6 +1,6 @@
-async function createKeyRing(
-    projectId = 'YOUR_PROJECT_ID', // Your GCP projectId
-    keyRingId = 'my-new-key-ring' // Name of the new key ring
+module.exports = async function createKeyRing(
+    projectId, // Your GCP projectId
+    keyRingId // Name of the new key ring
 ) {
     // The location of the new key ring, e.g. "global"
     const locationId = 'global';
@@ -13,6 +13,6 @@ async function createKeyRing(
     const parent = client.locationPath(projectId, locationId);
 
     // Creates a new key ring
-    const [result] = await client.createKeyRing({parent, keyRingId});
+    const [result] = await client.createKeyRing({ parent, keyRingId });
     console.log(`Key ring ${result.name} created.`);
-}
+};

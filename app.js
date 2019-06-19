@@ -8,7 +8,7 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const app = express();
 
-require('./credentials.js');
+require('./authorization.js');
 require('./example.js');
 
 app.use(logger('dev'));

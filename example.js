@@ -1,79 +1,74 @@
-const KMSClient = require('./public/helpers/google-cloud-kms');
-const client = new KMSClient();
-const moment = require('moment');
+const express = require('express');
+const app = express();
 
-// client
-//     .createKeyRing({ keyRingId: 'key-ring-test-1' })
-//     .then(() => console.log('Key ring created successfully!'))
-//     .catch(error => console.error('ERROR', error));
-// const params = {
-//     pageSize: 10
-// };
-// client
-//     .listKeyRing(params)
-//     .then(res => console.log('List of key rings', res))
-//     .catch(error => console.error('ERROR', error));
+const createKeyRing = require('./public/javascripts/create-key-ring');
+const createCryptoKey = require('./public/javascripts/create-crypto-key');
+const createCryptoKeyVersion = require('./public/javascripts/create-crypto-key-version');
+
+const encrypt = require('./public/javascripts/encrypt');
+const decrypt = require('./public/javascripts/decrypt');
+const deleteFile = require('./public/javascripts/delete-file');
+const downloadFile = require('./public/javascripts/download-file');
+const uploadFile = require('./public/javascripts/upload-file');
+
+const GCP_KEY_RING_ID = 'storage'; // `${MODE_ENV}-ring`
+const GCP_CRYPTO_KEY_ID = 'mykey'; // `${MODE_ENV}-${NODE_ENV}-key`
+const GCP_BUCKET_NAME = 'secrets_bucket-1';
+
+const MODE_ENV = process.env.MODE_ENV || 'local';
+const NODE_ENV = process.env.NODE_ENV || 'ds';
+
+// createKeyRing(
+//         process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+//         GCP_KEY_RING_ID)
+//     .then(() => console.info('Key ring created successfully!'))
+//     .catch(error => console.error(error));
 //
-// client
-//     .getKeyRing({ keyRingName: 'storage' })
-//     .then(res => console.log('Metadata of key ring', res.name))
-//     .catch(error => console.error('ERROR', error));
+// createCryptoKey(
+//         process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+//         GCP_KEY_RING_ID,
+//         GCP_CRYPTO_KEY_ID)
+//     .then(() => console.info('Key ring created successfully!'))
+//     .catch(error => console.error(error));
+//
 
-// Create Crypto Key
-// const labelsMap = new Map();
-// labelsMap.set('abc', 'def');
-// labelsMap.set('ghi', 'jkl');
-
-// client
-//     .createCryptoKey({
-//         keyRingName: 'key-ring-test-1',
-//         cryptoKeyId: 'crypto-key-test-1',
-//         resource: {
-//             purpose: 'ENCRYPT_DECRYPT', // must be CRYPTO_KEY_PURPOSE_UNSPECIFIED or ENCRYPT_DECRYPT
-//             nextRotationTime: moment(new Date()).add(3, 'months').toISOString(),
-//             labels: labelsMap,
-//             rotationPeriod: (30 * 86400) + 's',
-//         }
+// downloadFile(
+//     GCP_BUCKET_NAME,
+//     `${MODE_ENV}-${NODE_ENV}.txt.encrypted`,
+//     `${MODE_ENV}-${NODE_ENV}.txt.encrypted`)
+//     .then(() => {
+//         console.info('File downloaded successfully!');
+//         decrypt(
+//             process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+//             GCP_KEY_RING_ID,
+//             GCP_CRYPTO_KEY_ID,
+//             `${MODE_ENV}-${NODE_ENV}.txt.encrypted`,
+//             `${MODE_ENV}-${NODE_ENV}.txt`)
+//             .then(() => console.log('Decrypted successfully!'))
+//             .catch(error => console.error(error));
 //     })
-//     .then(() => console.log('Key created successfully'))
-//     .catch(error => console.log('ERROR', error));
+//     .catch(error => console.error(error));
 
-// client
-//     .listCryptoKey({
-//         keyRingName: 'key-ring-test-1',
+// createCryptoKeyVersion(
+//         process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+//         GCP_KEY_RING_ID,
+//         GCP_CRYPTO_KEY_ID);
+
+
+// encrypt(
+//     process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+//     GCP_KEY_RING_ID,
+//     GCP_CRYPTO_KEY_ID,
+//     `${MODE_ENV}-${NODE_ENV}.txt`,
+//     `${MODE_ENV}-${NODE_ENV}.txt.encrypted`)
+//     .then(() => {
+//         console.log('Encrypted successfully!');
+//         uploadFile(
+//             GCP_BUCKET_NAME,
+//             `${MODE_ENV}-${NODE_ENV}.txt.encrypted`)
+//             .then(() => {
+//                 deleteFile(`${MODE_ENV}-${NODE_ENV}.txt`);
+//             })
+//             .catch(error => console.error(error));
 //     })
-//     .then(result => result.data)
-//     .catch(error => console.log('ERROR', error));
-
-client
-    .getCryptoKey({
-        keyRingName: 'storage',
-        cryptoKeyId: 'mykey',
-    })
-    .then(res => console.log('Crypto Key', res.data.name))
-    .catch(error => console.log('Error happened', error));
-
-// Encrypt data
-// client
-//     .encrypt({
-//         keyRingName: 'key-ring-test-1',
-//         cryptoKeyId: 'crypto-key-test-1',
-//         cryptoKeyVersion: 1,
-//         requestBody: {
-//             plaintext: Buffer.from('Hello World').toString('base64'),
-//         }
-//     })
-//     .then(result => console.log(result.data))
-//     .catch(error => console.log('ERROR', error));
-
-// Decrypt data
-// client
-//     .decrypt({
-//         keyRingName: 'key-ring-test-1',
-//         cryptoKeyId: 'crypto-key-test-1',
-//         requestBody: {
-//             ciphertext: 'CiQADHkK/ri2G7jMT4Aj7XhKGBzJ4qqGJOKDYWwQa/lRk5jlH4QSNACq6qsKcNrRBYZblAb3i1lzWcdI6g1y9T7cGj6KUaPCzLaAH1m8+hLhvavn/J3Ns5zKiS8='
-//         }
-//     })
-//     .then(res => console.log('Data decrypted successfully!', res))
-//     .catch(error => console.log('ERROR', error));
+//     .catch(error => console.error(error));

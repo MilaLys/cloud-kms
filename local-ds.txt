@@ -1,0 +1,6 @@
+{
+  "MONGODB_URL": "123",
+  "GCP_BILLING_ACCOUNT": "98-90C069",
+  "GCP_OWNER_ACCOUNT": "test@test.org",
+  "GCP_ID_FOLDER": "7541643695"
+}
