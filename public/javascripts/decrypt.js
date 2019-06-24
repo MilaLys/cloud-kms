@@ -5,6 +5,7 @@ module.exports = async function decrypt(
     ciphertextFileName,
     plaintextFileName
 ) {
+    console.log(ciphertextFileName, plaintextFileName);
     const fs = require('fs');
     const { promisify } = require('util');
 
@@ -30,6 +31,10 @@ module.exports = async function decrypt(
     const [result] = await client.decrypt({ name, ciphertext });
 
     // Writes the decrypted file to disk
+    const dir = 'credentials';
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
     const writeFile = promisify(fs.writeFile);
     await writeFile(plaintextFileName, Buffer.from(result.plaintext, 'base64'));
     console.log(

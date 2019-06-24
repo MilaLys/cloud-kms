@@ -1,8 +1,8 @@
-module.exports = async function deleteFile(file) {
+module.exports = function deleteFile(file) {
     const fs = require('fs');
 
     fs.unlink(file, function (err) {
         if (err) throw err;
-        console.log('File deleted!');
+        console.info('File deleted!');
     });
 };

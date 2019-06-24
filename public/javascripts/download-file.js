@@ -1,20 +1,28 @@
-module.exports = async function downloadFile(bucketName, srcFilename, destFilename) {
-    // Imports the Google Cloud client library
+const listFiles = require('../helpers/list-files');
+module.exports = async function downloadFile(bucketName) {
+    const fs = require('fs');
     const { Storage } = require('@google-cloud/storage');
-
-    // Creates a client
     const storage = new Storage();
-    const options = {
-        destination: destFilename,
-    };
+    const files = await listFiles(bucketName);
+    const dir = 'credentials-enc';
 
-    // Downloads the file
-    await storage
-        .bucket(bucketName)
-        .file(srcFilename)
-        .download(options);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+
+    let options = {};
+    files.forEach(async (file) => {
+        options = {
+            destination: `${dir}/${file.name}`
+        };
+        // Downloads the file
+        await storage
+            .bucket(bucketName)
+            .file(file.name)
+            .download(options);
+    });
 
     console.log(
-        `gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`
+        `gs:// Files from ${bucketName} downloaded.`
     );
 };

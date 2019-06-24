@@ -1,15 +1,10 @@
-(async function encrypt (
+module.exports = async function encrypt(
     projectId,
     keyRingId,
     cryptoKeyId,
     plaintextFileName,
     ciphertextFileName
 ) {
-    console.log(projectId,
-        keyRingId,
-        cryptoKeyId,
-        plaintextFileName,
-        ciphertextFileName);
     const fs = require('fs');
     const { promisify } = require('util');
 
@@ -37,4 +32,4 @@
     await writeFile(ciphertextFileName, Buffer.from(result.ciphertext, 'base64'));
     console.log(`Encrypted ${plaintextFileName} using ${result.name}.`);
     console.log(`Result saved to ${ciphertextFileName}.`);
-}());
+};
