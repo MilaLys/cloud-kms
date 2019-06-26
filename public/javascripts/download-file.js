@@ -1,28 +1,30 @@
-const listFiles = require('../helpers/list-files');
-module.exports = async function downloadFile(bucketName) {
-    const fs = require('fs');
-    const { Storage } = require('@google-cloud/storage');
-    const storage = new Storage();
-    const files = await listFiles(bucketName);
-    const dir = 'credentials-enc';
+module.exports.downloadFile = async function () {
+    require('dotenv').config();
 
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+    const encFilesDir = 'credentials-enc';
+    const fs = require('fs');
+    if (!fs.existsSync(encFilesDir)) {
+        fs.mkdirSync(encFilesDir);
     }
 
-    let options = {};
+    const bucketName = process.env.GCP_BUCKET_NAME;
+    const listFiles = require('../helpers/list-files');
+    const files = await listFiles(bucketName);
     files.forEach(async (file) => {
-        options = {
-            destination: `${dir}/${file.name}`
-        };
-        // Downloads the file
-        await storage
-            .bucket(bucketName)
-            .file(file.name)
-            .download(options);
+        const { Storage } = require('@google-cloud/storage');
+        const storage = new Storage();
+        try {
+            await storage
+                .bucket(bucketName)
+                .file(file.name)
+                .download({ destination: `${encFilesDir}/${file.name}` });
+
+            console.info(`File ${file.name} from ${bucketName} downloaded to ${encFilesDir}/${file.name}.`);
+
+        } catch (error) {
+            console.error(error);
+        }
     });
 
-    console.log(
-        `gs:// Files from ${bucketName} downloaded.`
-    );
+    return files;
 };

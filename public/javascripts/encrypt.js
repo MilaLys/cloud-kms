@@ -1,35 +1,40 @@
-module.exports = async function encrypt(
-    projectId,
-    keyRingId,
-    cryptoKeyId,
-    plaintextFileName,
-    ciphertextFileName
-) {
+module.exports.encrypt = async function () {
+    require('dotenv').config();
+
+    const decrFilesDir = './credentials/';
     const fs = require('fs');
-    const { promisify } = require('util');
+    fs.readdir(decrFilesDir, (error, files) => {
+        if (error) throw error;
+        files.forEach(async (file) => {
+            const kms = require('@google-cloud/kms');
+            const client = new kms.KeyManagementServiceClient();
+            const name = client.cryptoKeyPath(
+                process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+                process.env.CRYPTO_KEY_LOCATION,
+                process.env.CRYPTO_KEY_RING_ID,
+                process.env.CRYPTO_KEY_ID
+            );
 
-    // Import the library and create a client
-    const kms = require('@google-cloud/kms');
-    const client = new kms.KeyManagementServiceClient();
+            try {
+                const { promisify } = require('util');
+                const readFile = promisify(fs.readFile);
+                const contentsBuffer = await readFile(`${decrFilesDir}/${file}`);
+                const plaintext = contentsBuffer.toString('base64');
+                const [result] = await client.encrypt({ name, plaintext });
+                const writeFile = promisify(fs.writeFile);
+                const encFilesDir = 'credentials-enc';
 
-    // The location of the crypto key's key ring, e.g. "global"
-    const locationId = 'global';
+                if (!fs.existsSync(encFilesDir)) {
+                    fs.mkdirSync(encFilesDir);
+                }
 
-    // Reads the file to be encrypted
-    const readFile = promisify(fs.readFile);
-    const contentsBuffer = await readFile(plaintextFileName);
-    const plaintext = contentsBuffer.toString('base64');
-    const name = client.cryptoKeyPath(
-        projectId,
-        locationId,
-        keyRingId,
-        cryptoKeyId
-    );
-
-    // Encrypts the file using the specified crypto key
-    const [result] = await client.encrypt({ name, plaintext });
-    const writeFile = promisify(fs.writeFile);
-    await writeFile(ciphertextFileName, Buffer.from(result.ciphertext, 'base64'));
-    console.log(`Encrypted ${plaintextFileName} using ${result.name}.`);
-    console.log(`Result saved to ${ciphertextFileName}.`);
+                const ciphertextFileName = `${file}.encrypted`;
+                await writeFile(`${encFilesDir}/${ciphertextFileName}`, Buffer.from(result.ciphertext, 'base64'))
+                    .catch(error => console.error(error));
+                console.info(`File ${file} encrypted and saved to ${ciphertextFileName}.`);
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    });
 };

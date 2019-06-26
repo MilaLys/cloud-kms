@@ -1,23 +1,29 @@
-module.exports = async function uploadFile(bucketName, filename) {
-    // Imports the Google Cloud client library
-    const { Storage } = require('@google-cloud/storage');
+module.exports.uploadFile = async function () {
+    require('dotenv').config();
 
-    // Creates a client
-    const storage = new Storage();
+    const encFilesDir = './credentials-enc/';
 
-    // Uploads a local file to the bucket
-    await storage.bucket(bucketName).upload(filename, {
-        // Support for HTTP requests made with `Accept-Encoding: gzip`
-        gzip: true,
-        // By setting the option `destination`, you can change the name of the
-        // object you are uploading to a bucket.
-        metadata: {
-            // Enable long-lived HTTP caching headers
-            // Use only if the contents of the file will never change
-            // (If the contents will change, use cacheControl: 'no-cache')
-            cacheControl: 'public, max-age=31536000',
-        },
+    fs.readdir(encFilesDir, (error, files) => {
+        if (error) throw error;
+
+        files.forEach(async (file) => {
+            try {
+                const { Storage } = require('@google-cloud/storage');
+                const storage = new Storage();
+                const bucketName = process.env.GCP_BUCKET_NAME;
+
+                await storage
+                    .bucket(bucketName)
+                    .upload(`credentials-enc/${file}`, {
+                        gzip: true,
+                        metadata: {
+                            cacheControl: 'public, max-age=31536000'
+                        },
+                    });
+                console.info(`File ${file} uploaded to ${bucketName}.`);
+            } catch (error) {
+                console.error(error);
+            }
+        })
     });
-
-    console.log(`${filename} uploaded to ${bucketName}.`);
 };

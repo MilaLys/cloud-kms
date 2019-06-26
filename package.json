@@ -6,7 +6,17 @@
     "start": "nodemon ./bin/www",
     "server": "npm run start",
     "server:schools": "MODE_ENV=prod NODE_ENV=schools npm run server",
-    "encrypt": "node public/javascripts/encrypt.js --projectId='123'"
+    "encrypt:credentials": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' && npm run upload:credentials",
+    "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()' && npm run delete:credentials",
+    "download:credentials": "node -e 'require(\"./public/javascripts/download-file.js\").downloadFile()' && npm run decrypt:credentials",
+    "decrypt:credentials": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()'",
+    "delete:credentials": "node -e 'require(\"./public/helpers/delete-file.js\").deleteFile()'",
+    "precommit": "node -e 'require(\"./public/helpers/delete-file.js\").deleteFile()'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run delete:credentials"
+    }
   },
   "dependencies": {
     "@google-cloud/kms": "1.1.1",
@@ -17,11 +27,13 @@
     "envkey": "1.2.6",
     "express": "4.16.1",
     "googleapis": "40.0.0",
-    "moment": "2.24.0",
     "morgan": "1.9.1",
     "node-sass-middleware": "0.11.0",
     "nodemon": "1.19.1",
     "request-promise": "4.2.4",
     "util": "0.12.0"
+  },
+  "devDependencies": {
+    "husky": "2.6.0"
   }
 }

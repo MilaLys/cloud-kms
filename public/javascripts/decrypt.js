@@ -1,43 +1,38 @@
-module.exports = async function decrypt(
-    projectId,
-    keyRingId,
-    cryptoKeyId,
-    ciphertextFileName,
-    plaintextFileName
-) {
-    console.log(ciphertextFileName, plaintextFileName);
+module.exports.decrypt = async function () {
+    require('dotenv').config();
+
     const fs = require('fs');
-    const { promisify } = require('util');
+    const encFilesDir = './credentials-enc/';
+    fs.readdir(encFilesDir, (error, files) => {
+        if (error) throw error;
+        files.forEach(async (ciphertextFileName) => {
+            const { promisify } = require('util');
+            const readFile = promisify(fs.readFile);
+            const contentsBuffer = await readFile(`credentials-enc/${ciphertextFileName}`);
+            const kms = require('@google-cloud/kms');
+            const client = new kms.KeyManagementServiceClient();
+            const name = client.cryptoKeyPath(
+                process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+                process.env.CRYPTO_KEY_LOCATION,
+                process.env.CRYPTO_KEY_RING_ID,
+                process.env.CRYPTO_KEY_ID
+            );
+            const ciphertext = contentsBuffer.toString('base64');
+            const [result] = await client.decrypt({ name, ciphertext });
 
-    // Import the library and create a client
-    const kms = require('@google-cloud/kms');
-    const client = new kms.KeyManagementServiceClient();
+            // Writes the decrypted file to disk
+            const decrFilesDir = 'credentials';
 
-    // The location of the crypto key's key ring, e.g. "global"
-    const locationId = 'global';
+            if (!fs.existsSync(decrFilesDir)) {
+                fs.mkdirSync(decrFilesDir);
+            }
 
-    // Reads the file to be decrypted
-    const readFile = promisify(fs.readFile);
-    const contentsBuffer = await readFile(ciphertextFileName);
-    const name = client.cryptoKeyPath(
-        projectId,
-        locationId,
-        keyRingId,
-        cryptoKeyId
-    );
-    const ciphertext = contentsBuffer.toString('base64');
+            const writeFile = promisify(fs.writeFile);
+            const plaintextFileName = ciphertextFileName.split('.').splice(0, 2).join('.');
+            await writeFile(`${decrFilesDir}/${plaintextFileName}`, Buffer.from(result.plaintext, 'base64'))
+                .catch(error => console.error(error));
 
-    // Decrypts the file using the specified crypto key
-    const [result] = await client.decrypt({ name, ciphertext });
-
-    // Writes the decrypted file to disk
-    const dir = 'credentials';
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
-    const writeFile = promisify(fs.writeFile);
-    await writeFile(plaintextFileName, Buffer.from(result.plaintext, 'base64'));
-    console.log(
-        `Decrypted ${ciphertextFileName}, result saved to ${plaintextFileName}.`
-    );
+            console.info(`Decrypted ${ciphertextFileName}, result saved to ${plaintextFileName}.`);
+        })
+    });
 };

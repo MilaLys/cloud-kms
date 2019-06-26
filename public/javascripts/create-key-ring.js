@@ -1,11 +1,8 @@
 module.exports = async function createKeyRing(
-    projectId, // Your GCP projectId
-    keyRingId // Name of the new key ring
+    projectId,
+    keyRingId
 ) {
-    // The location of the new key ring, e.g. "global"
     const locationId = 'global';
-
-    // Import the library and create a client
     const kms = require('@google-cloud/kms');
     const client = new kms.KeyManagementServiceClient();
 
