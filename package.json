@@ -4,19 +4,13 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "server": "npm run start",
+    "server": "npm run decrypt:credentials && npm run start",
     "server:schools": "MODE_ENV=prod NODE_ENV=schools npm run server",
     "encrypt:credentials": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' && npm run upload:credentials",
     "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()' && npm run delete:credentials",
     "download:credentials": "node -e 'require(\"./public/javascripts/download-file.js\").downloadFile()' && npm run decrypt:credentials",
     "decrypt:credentials": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()'",
-    "delete:credentials": "node -e 'require(\"./public/helpers/delete-file.js\").deleteFile()'",
-    "precommit": "node -e 'require(\"./public/helpers/delete-file.js\").deleteFile()'"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run delete:credentials"
-    }
+    "delete:credentials": "rm -rf credentials"
   },
   "dependencies": {
     "@google-cloud/kms": "1.1.1",
