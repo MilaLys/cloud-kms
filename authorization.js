@@ -18,10 +18,10 @@ const url = oauth2Client.generateAuthUrl({
 
 // Get access token
 // Replace with the code you've got on
-const code = '4/bAEhYd8ccrUWmK56JVonwXAEaMVIsx_daF38cfR2kvry84YBxKUlKS1mJQaZBK4IB7AUZPMu86IaKwPK7577yeY';
+const code = '4/fQHQXzqm8GHk5_0SRiTS9q3D2GJwghIQ0ckTTqOdLCBfhfQ3aXYOGu42SFG_cDN9vqqPlu25FJi11O0DRpOMx8A';
 const getToken = async () => {
     const { tokens } = await oauth2Client.getToken(code);
-    // console.info(tokens);
+    console.info(tokens);
 };
 
 // getToken();

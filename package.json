@@ -6,11 +6,16 @@
     "start": "nodemon ./bin/www",
     "server": "npm run decrypt:credentials && npm run start",
     "server:schools": "MODE_ENV=prod NODE_ENV=schools npm run server",
-    "encrypt:credentials": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' && npm run upload:credentials",
-    "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()' && npm run delete:credentials",
+    "encrypt:credentials": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()'",
+    "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()'",
     "download:credentials": "node -e 'require(\"./public/javascripts/download-file.js\").downloadFile()' && npm run decrypt:credentials",
     "decrypt:credentials": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()'",
     "delete:credentials": "rm -rf credentials"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run encrypt:credentials"
+    }
   },
   "dependencies": {
     "@google-cloud/kms": "1.1.1",
