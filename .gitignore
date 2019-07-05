@@ -40,3 +40,4 @@ sslcert/**
 
 credentials/
 .env
+kms-project-f9daaff7f245.json
