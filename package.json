@@ -9,7 +9,7 @@
     "encrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=prod",
     "decrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=prod",
 
-    "build:client:local:ds": "npm run decrypt:credentials:prod:ds && npm run start",
+    "build:client:local:ds": "npm run decrypt:credentials:local:ds && npm run start",
     "encrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=local",
     "decrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=local",
 
