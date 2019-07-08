@@ -1,4 +1,4 @@
-module.exports = async function listKeyRings(projectId) {
+module.exports.listKeyRings = async function (projectId) {
     const locationId = 'global';
     const kms = require('@google-cloud/kms');
     const client = new kms.KeyManagementServiceClient();

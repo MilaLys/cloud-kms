@@ -5,16 +5,19 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "server": "npm run decrypt:credentials && npm run start",
-    "server:schools": "MODE_ENV=prod NODE_ENV=schools npm run server",
-    "encrypt:credentials": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()'",
-    "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()'",
-    "download:credentials": "node -e 'require(\"./public/javascripts/download-file.js\").downloadFile()' && npm run decrypt:credentials",
-    "decrypt:credentials": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()'",
-    "delete:credentials": "rm -rf credentials"
+    "build:client:prod:ds": "npm run decrypt:credentials:prod:ds && npm run start",
+    "encrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=prod",
+    "decrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=prod",
+
+    "build:client:local:ds": "npm run decrypt:credentials:prod:ds && npm run start",
+    "encrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=local",
+    "decrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=local",
+
+    "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()'"
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run encrypt:credentials"
+      "pre-commit": "npm run encrypt:credentials:prod:ds && npm run encrypt:credentials:local:ds && git add credentials-enc/*.txt.encrypted"
     }
   },
   "dependencies": {

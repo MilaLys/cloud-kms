@@ -1,4 +1,4 @@
-module.exports = async function listCryptoKeys(keyRingId) {
+module.exports.listCryptoKeys = async function (keyRingId) {
     const kms = require('@google-cloud/kms');
     const client = new kms.KeyManagementServiceClient();
     let parent = `${keyRingId}`;

@@ -6,6 +6,5 @@ npm-debug.log
 
 #credentials
 credentials/
-credentials-enc/
 .env
 kms-project-f9daaff7f245.json
