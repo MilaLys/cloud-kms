@@ -14,7 +14,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run encrypt:credentials"
+      "pre-commit": "npm run encrypt:credentials && git add credentials-enc/*.txt.encrypted"
     }
   },
   "dependencies": {
@@ -33,6 +33,6 @@
     "util": "0.12.0"
   },
   "devDependencies": {
-    "husky": "2.6.0"
+    "husky": "3.0.0"
   }
 }
