@@ -8,6 +8,7 @@
     "build:client:prod:ds": "npm run decrypt:credentials:prod:ds && npm run start",
     "encrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=prod",
     "decrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=prod",
+
     "build:client:local:ds": "npm run decrypt:credentials:local:ds && npm run start",
     "encrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=local",
     "decrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=local",
@@ -27,6 +28,7 @@
     "envkey": "1.2.6",
     "express": "4.16.1",
     "googleapis": "40.0.0",
+    "lodash": "4.17.15",
     "morgan": "1.9.1",
     "node-sass-middleware": "0.11.0",
     "nodemon": "1.19.1",
