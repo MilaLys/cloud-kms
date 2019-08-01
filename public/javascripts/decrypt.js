@@ -1,62 +1,59 @@
-module.exports.decrypt = async function () {
+const fs = require('fs');
+const path = require('path');
+
+async function decrypt() {
     require('dotenv').config();
 
-    const NODE_ENV = process.argv[1].split('=').splice(1, 2)[0];
-    const MODE_ENV = process.argv[2].split('=').splice(1, 2)[0];
-    const fs = require('fs');
-    const encFilesDir = './credentials-enc/';
-    let CRYPTO_KEY_ID;
-    let keys;
-    let obj;
+    const NODE_ENV = process.env.NODE_ENV;
+    const MODE_ENV = process.env.MODE_ENV;
+    const DECRYPTED_FILES_DIR = 'credentials';
+    const ENCRYPTED_FILES_DIR = 'credentials-enc';
+    const CRYPTO_KEY_RING_ID = `${MODE_ENV}-key-ring`;
+    const GOOGLE_CLOUD_OAUTH_PROJECT_ID = process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID;
+    const CRYPTO_KEY_LOCATION = process.env.CRYPTO_KEY_LOCATION;
+    const ORIGINAL_FILE_PATH = path.resolve(DECRYPTED_FILES_DIR, `${MODE_ENV}.${NODE_ENV}.json`);
+    const ENCRYPTED_FILE_PATH = path.resolve(ENCRYPTED_FILES_DIR, `${MODE_ENV}.${NODE_ENV}.json.encrypted`);
+    const kms = require('@google-cloud/kms');
+    const client = new kms.KeyManagementServiceClient();
 
-    fs.readFile(`./credentials/${MODE_ENV}.${NODE_ENV}.txt`, 'utf8', (err, data) => {
-        if (err) throw err;
-        obj = JSON.parse(data);
-        keys = Object.keys(obj);
-        keys.forEach((key) => {
-            CRYPTO_KEY_ID = `${key}-key`;
-        });
+    if (!fs.existsSync(DECRYPTED_FILES_DIR)) {
+        fs.mkdirSync(DECRYPTED_FILES_DIR);
+    }
+    const encCredentials = JSON.parse(fs.readFileSync(ENCRYPTED_FILE_PATH, 'utf8'));
+    // const encCredentials = require(ENCRYPTED_FILE_PATH);
+
+    const decrCredentials = {};
+
+    for (const KEY in encCredentials) {
+        const VALUE = encCredentials[KEY];
+        decrCredentials[KEY] = VALUE;
 
         try {
-            const lineReader = require('readline').createInterface({
-                input: require('fs').createReadStream(`${encFilesDir}/${MODE_ENV}.${NODE_ENV}.txt.encrypted`)
-            });
+            const GCP_DECRYPT_KEY = client.cryptoKeyPath(
+                GOOGLE_CLOUD_OAUTH_PROJECT_ID,
+                CRYPTO_KEY_LOCATION,
+                CRYPTO_KEY_RING_ID,
+                KEY
+            );
+            // console.log(GCP_DECRYPT_KEY, ENC_VALUE, KEY);
+            const ENC_VALUE = Buffer.from(VALUE, 'base64');
+            const ciphertext = ENC_VALUE.toString('base64');
+            // console.log(VALUE)
+            const [result] = await client.decrypt({ name: GCP_DECRYPT_KEY, ciphertext: VALUE });
+            console.log(123, result.plaintext.toString('base64'));
+            // console.log(Buffer.compare(ENC_VALUE, plaintext))
+            // console.log(1, plaintext);
+            const DEC_VALUE = Buffer.from(result.plaintext, 'base64');
 
-            lineReader.on('line', async (line) => {
-                const CRYPTO_KEY_RING_ID = `${MODE_ENV}-key-ring`;
-                const kms = require('@google-cloud/kms');
-                const client = new kms.KeyManagementServiceClient();
-                const name = client.cryptoKeyPath(
-                    process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID,
-                    process.env.CRYPTO_KEY_LOCATION,
-                    CRYPTO_KEY_RING_ID,
-                    CRYPTO_KEY_ID
-                );
+            decrCredentials[KEY] = DEC_VALUE;
 
-                const [result] = await client.decrypt({ name, line });
-                // Writes the decrypted file to disk
-                const decrFilesDir = 'credentials';
-
-                if (!fs.existsSync(decrFilesDir)) {
-                    fs.mkdirSync(decrFilesDir);
-                }
-
-                const { promisify } = require('util');
-                const writeFile = promisify(fs.writeFile);
-                const plaintextFileName = `${MODE_ENV}.${NODE_ENV}.txt`;
-                await writeFile(`${decrFilesDir}/${plaintextFileName}`, Buffer.from(result.plaintext, 'base64'))
-                    .catch(error => console.error(error));
-
-                console.info(`Decrypted ${MODE_ENV}.${NODE_ENV}.txt.encrypted, result saved to ${plaintextFileName}.`);
-            });
+            console.info(`${KEY} decrypted, result saved to ${ORIGINAL_FILE_PATH}.`);
 
         } catch (error) {
             console.error(error);
         }
-    });
+        fs.writeFileSync(ORIGINAL_FILE_PATH, JSON.stringify(decrCredentials));
+    }
+}
 
-    fs.readFile(`${encFilesDir}/${MODE_ENV}.${NODE_ENV}.txt.encrypted`, 'utf8', (err, data) => {
-        const arr = data.split(',');
-        console.log(arr)
-    })
-};
+decrypt();
