@@ -6,12 +6,8 @@
     "start": "nodemon ./bin/www",
     "server": "npm run decrypt:credentials && npm run start",
     "build:client:prod:ds": "npm run decrypt:credentials:prod:ds && npm run start",
-    "encrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=prod",
-    "decrypt:credentials:prod:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=prod",
-
-    "build:client:local:ds": "npm run decrypt:credentials:local:ds && npm run start",
-    "encrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/encrypt.js\").encrypt()' NODE_ENV=ds MODE_ENV=local",
-    "decrypt:credentials:local:ds": "node -e 'require(\"./public/javascripts/decrypt.js\").decrypt()' NODE_ENV=ds MODE_ENV=local",
+    "encrypt:credentials:prod:ds": "node ./public/javascripts/kms.service.js ds prod encrypt",
+    "decrypt:credentials:prod:ds": "node ./public/javascripts/kms.service.js ds prod decrypt",
     "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()'"
   },
   "husky": {
@@ -30,10 +26,12 @@
     "googleapis": "40.0.0",
     "lodash": "4.17.15",
     "morgan": "1.9.1",
+    "nconf": "0.10.0",
     "node-sass-middleware": "0.11.0",
     "nodemon": "1.19.1",
     "request-promise": "4.2.4",
-    "util": "0.12.0"
+    "util": "0.12.0",
+    "yargs": "13.3.0"
   },
   "devDependencies": {
     "husky": "2.6.0"

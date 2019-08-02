@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const kms = require('@google-cloud/kms');
+
+require('dotenv').config();
 
 async function decrypt() {
-    require('dotenv').config();
-
+    const client = new kms.KeyManagementServiceClient();
     const NODE_ENV = process.env.NODE_ENV;
     const MODE_ENV = process.env.MODE_ENV;
     const DECRYPTED_FILES_DIR = 'credentials';
@@ -12,16 +14,13 @@ async function decrypt() {
     const GOOGLE_CLOUD_OAUTH_PROJECT_ID = process.env.GOOGLE_CLOUD_OAUTH_PROJECT_ID;
     const CRYPTO_KEY_LOCATION = process.env.CRYPTO_KEY_LOCATION;
     const ORIGINAL_FILE_PATH = path.resolve(DECRYPTED_FILES_DIR, `${MODE_ENV}.${NODE_ENV}.json`);
-    const ENCRYPTED_FILE_PATH = path.resolve(ENCRYPTED_FILES_DIR, `${MODE_ENV}.${NODE_ENV}.json.encrypted`);
-    const kms = require('@google-cloud/kms');
-    const client = new kms.KeyManagementServiceClient();
+    const ENCRYPTED_FILE_PATH = path.resolve(ENCRYPTED_FILES_DIR, `${MODE_ENV}.${NODE_ENV}.encrypted.json`);
 
     if (!fs.existsSync(DECRYPTED_FILES_DIR)) {
         fs.mkdirSync(DECRYPTED_FILES_DIR);
     }
-    const encCredentials = JSON.parse(fs.readFileSync(ENCRYPTED_FILE_PATH, 'utf8'));
-    // const encCredentials = require(ENCRYPTED_FILE_PATH);
 
+    const encCredentials = require(ENCRYPTED_FILE_PATH);
     const decrCredentials = {};
 
     for (const KEY in encCredentials) {
@@ -35,15 +34,9 @@ async function decrypt() {
                 CRYPTO_KEY_RING_ID,
                 KEY
             );
-            // console.log(GCP_DECRYPT_KEY, ENC_VALUE, KEY);
-            const ENC_VALUE = Buffer.from(VALUE, 'base64');
-            const ciphertext = ENC_VALUE.toString('base64');
-            // console.log(VALUE)
-            const [result] = await client.decrypt({ name: GCP_DECRYPT_KEY, ciphertext: VALUE });
-            console.log(123, result.plaintext.toString('base64'));
-            // console.log(Buffer.compare(ENC_VALUE, plaintext))
-            // console.log(1, plaintext);
-            const DEC_VALUE = Buffer.from(result.plaintext, 'base64');
+            const ciphertext = Buffer.from(decrCredentials[KEY], 'base64');
+            const [result] = await client.decrypt({ name: GCP_DECRYPT_KEY, ciphertext });
+            const DEC_VALUE = result.plaintext.toString('utf8');
 
             decrCredentials[KEY] = DEC_VALUE;
 
@@ -51,6 +44,7 @@ async function decrypt() {
 
         } catch (error) {
             console.error(error);
+            throw error;
         }
         fs.writeFileSync(ORIGINAL_FILE_PATH, JSON.stringify(decrCredentials));
     }
