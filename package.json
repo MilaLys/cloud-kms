@@ -10,11 +10,6 @@
     "decrypt:credentials:prod:ds": "node ./public/javascripts/kms.service.js ds prod decrypt",
     "upload:credentials": "node -e 'require(\"./public/javascripts/upload-file.js\").uploadFile()'"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run encrypt:credentials:prod:ds && npm run encrypt:credentials:local:ds && git add credentials-enc/*.txt.encrypted"
-    }
-  },
   "dependencies": {
     "@google-cloud/kms": "1.1.1",
     "@google-cloud/storage": "2.5.0",
