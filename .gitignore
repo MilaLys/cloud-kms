@@ -9,3 +9,4 @@ credentials/*.json
 !credentials/*.encrypted.json
 .env
 credentials.json
+kms-project-f9daaff7f245.json
