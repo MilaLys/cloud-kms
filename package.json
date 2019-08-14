@@ -29,6 +29,7 @@
     "yargs": "13.3.0"
   },
   "devDependencies": {
+    "git-json-merge": "0.4.4",
     "husky": "2.6.0"
   }
 }
